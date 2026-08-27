@@ -23,7 +23,10 @@
 ```text
 交底书理解
   → 技术特征和检索关键词提取
-  → HimmPat / Exa / 其他明确标注渠道检索
+  → 验证 HimmPat 业务 MCP
+  → HimmPat MCP（验证成功时优先）
+  → Exa MCP（HimmPat 不可用时）
+  → Codex 内置上网/浏览或用户分组检索式（前两者不可用时）
   → 输出候选文件和用户下载清单
   → 用户提供完整文件
   → 文件全文、著录项、日期和同族核验
@@ -53,7 +56,7 @@ references/
 
 ### HimmPat
 
-HimmPat 网页检索通过 In-App Browser 复用用户已登录的页面会话；网页会话与配置文件中的 HimmPat API Bearer 密钥是不同路径。若页面会话过期、API MCP 未注入或认证失败，应说明具体原因，并输出可复制的检索式和候选文件清单，不把其他来源冒充为 HimmPat 结果。
+每次检索先验证 HimmPat 业务 MCP：优先调用 `product_patent_discovery`，确认 `initialize`、`tools/list` 和一次实际检索调用均成功。验证成功后优先使用 HimmPat MCP；只有业务 MCP 未注入、连接/业务调用失败或认证失败时，才降级到 Exa。网页会话与 API Bearer 密钥是不同路径；In-App Browser 仅用于页面级查看或用户明确要求的网页下载，不作为 MCP 可用性判断。Exa 也不可用时，可使用 Codex 内置上网/浏览工具；仍无法检索则输出可复制的分组检索式和候选文件清单，不把其他来源冒充为 HimmPat 结果。
 
 API 密钥轮换时，在本机 Codex 配置的相关 `[mcp_servers.product_*]` 段落中，将 `headers.Authorization` 的 `Bearer <旧密钥>` 替换为新密钥，并重新加载 Codex MCP。多个端点共用同一密钥时一并替换；不要把真实密钥写入仓库、README、提交记录或对话。网页会话过期时，直接在 HimmPat In-App Browser 中重新登录，不能用更换 API 密钥替代网页登录。
 
